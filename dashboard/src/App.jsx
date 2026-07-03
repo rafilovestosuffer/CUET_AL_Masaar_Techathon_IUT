@@ -2,6 +2,9 @@ import { useLiveState } from "./hooks/useLiveState.js";
 import PowerMeter from "./components/PowerMeter.jsx";
 import RoomCard from "./components/RoomCard.jsx";
 import AlertsPanel from "./components/AlertsPanel.jsx";
+import OfficeMap from "./components/OfficeMap.jsx";
+
+const SHOW_OFFICE_MAP = true;
 
 const ROOMS = [
   ["drawing", "Drawing Room"],
@@ -53,10 +56,24 @@ export default function App() {
 
       <main className={`mx-auto max-w-6xl space-y-4 transition-opacity ${connected ? "" : "opacity-60"}`}>
         <div className="grid gap-4 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <PowerMeter watts={totals.watts} byRoom={totals.byRoom} kwhToday={kwhToday} />
-          </div>
-          <AlertsPanel active={alerts.active} recent={alerts.recent} />
+          {SHOW_OFFICE_MAP ? (
+            <>
+              <div className="lg:col-span-2">
+                <OfficeMap devices={devices} />
+              </div>
+              <div className="space-y-4">
+                <PowerMeter watts={totals.watts} byRoom={totals.byRoom} kwhToday={kwhToday} />
+                <AlertsPanel active={alerts.active} recent={alerts.recent} />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="lg:col-span-2">
+                <PowerMeter watts={totals.watts} byRoom={totals.byRoom} kwhToday={kwhToday} />
+              </div>
+              <AlertsPanel active={alerts.active} recent={alerts.recent} />
+            </>
+          )}
         </div>
         <div className="grid gap-4 lg:grid-cols-3">
           {ROOMS.map(([key, name]) => (

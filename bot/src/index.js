@@ -1,5 +1,6 @@
 const { Client, GatewayIntentBits, Events } = require("discord.js");
 const { handleCommand } = require("./commands");
+const proactive = require("./proactive");
 
 const token = process.env.DISCORD_TOKEN;
 
@@ -18,6 +19,7 @@ const client = new Client({
 
 client.once(Events.ClientReady, (c) => {
   console.log(`[bot] logged in as ${c.user.tag}`);
+  proactive.start(c);
 });
 
 client.on(Events.MessageCreate, async (message) => {

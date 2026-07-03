@@ -28,4 +28,10 @@ async function getRoom(name) {
   return fetchRaw(`/api/rooms/${encodeURIComponent(name)}`);
 }
 
-module.exports = { getUsage, getDevices, getRoom };
+async function getAlerts() {
+  const { status, data } = await fetchRaw("/api/alerts");
+  if (status >= 400) throw new Error(`alerts HTTP ${status}`);
+  return data;
+}
+
+module.exports = { getUsage, getDevices, getRoom, getAlerts };

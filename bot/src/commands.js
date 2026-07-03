@@ -1,5 +1,6 @@
 const api = require("./api");
 const t = require("./templates");
+const { humanize } = require("./humanize");
 
 function matchRoom(name) {
   const n = String(name).toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -18,17 +19,21 @@ async function handleCommand(content) {
 
   try {
     switch (command.toLowerCase()) {
-      case "status":
-        return t.statusReply(await api.getDevices());
-      case "usage":
-        return t.usageReply(await api.getUsage());
+      case "status": {
+        const data = await api.getDevices();
+        return humanize("status", t.statusFacts(data), t.statusReply(data));
+      }
+      case "usage": {
+        const data = await api.getUsage();
+        return humanize("usage", t.usageFacts(data), t.usageReply(data));
+      }
       case "room": {
         if (!arg) return t.unknownRoomReply();
         const room = matchRoom(arg);
         if (!room) return t.unknownRoomReply();
         const { status, data } = await api.getRoom(room);
         if (status === 404) return t.unknownRoomReply();
-        return t.roomReply(data);
+        return humanize("room", t.roomFacts(data), t.roomReply(data));
       }
       default:
         return null;

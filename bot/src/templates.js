@@ -23,6 +23,43 @@ function usageReply(data) {
   return `⚡ The office is drawing ${data.watts} W right now (~${data.kwhToday} kWh today).\nBy room — Drawing ${data.byRoom.drawing} W · Work 1 ${data.byRoom.work1} W · Work 2 ${data.byRoom.work2} W.`;
 }
 
+function statusFacts(data) {
+  const { devices, totals, kwhToday } = data;
+  return {
+    devicesOn: devices.filter((d) => d.status === "on").length,
+    devicesTotal: devices.length,
+    watts: totals.watts,
+    kwhToday,
+    rooms: ROOMS.map((room) => {
+      const rd = devices.filter((d) => d.room === room);
+      return { room: LABELS[room], on: rd.filter((d) => d.status === "on").length, total: rd.length };
+    }),
+  };
+}
+
+function usageFacts(data) {
+  return { watts: data.watts, kwhToday: data.kwhToday, byRoom: data.byRoom };
+}
+
+function roomFacts(data) {
+  const on = data.devices.filter((d) => d.status === "on");
+  return {
+    room: LABELS[data.room] || data.room,
+    on: on.length,
+    total: data.devices.length,
+    watts: data.watts,
+    onDevices: on.map((d) => d.label),
+  };
+}
+
+function alertReply(alert) {
+  return `⚠️ ${alert.message}`;
+}
+
+function alertFacts(alert) {
+  return { room: LABELS[alert.room] || alert.room, rule: alert.rule, message: alert.message };
+}
+
 function backendDownReply() {
   return "I can't reach the office sensors right now — try again in a minute.";
 }
@@ -31,4 +68,15 @@ function unknownRoomReply() {
   return `I don't know that room. Try: ${ROOMS.join(", ")}.`;
 }
 
-module.exports = { statusReply, roomReply, usageReply, backendDownReply, unknownRoomReply };
+module.exports = {
+  statusReply,
+  roomReply,
+  usageReply,
+  alertReply,
+  statusFacts,
+  usageFacts,
+  roomFacts,
+  alertFacts,
+  backendDownReply,
+  unknownRoomReply,
+};

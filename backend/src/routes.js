@@ -3,6 +3,7 @@ const state = require("./state");
 const aggregate = require("./aggregate");
 const sim = require("./simulator");
 const alerts = require("./alerts");
+const scenarios = require("./scenarios");
 const { ROOMS } = require("./seed");
 
 function matchRoom(name) {
@@ -55,8 +56,13 @@ router.get("/rooms/:name", (req, res) => {
 
 router.get("/alerts", (_req, res) => res.json(alerts.getAlerts()));
 
-router.post("/sim/scenario/:name", (_req, res) =>
-  res.status(404).json({ error: "unknown scenario" })
-);
+router.post("/sim/scenario/:name", (req, res) => {
+  const { name } = req.params;
+  if (!scenarios.applyScenario(name)) {
+    return res.status(404).json({ error: "unknown scenario" });
+  }
+  alerts.evaluate();
+  res.json({ ok: true, scenario: name });
+});
 
 module.exports = { router, buildDevicesResponse };

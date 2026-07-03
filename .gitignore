@@ -15,10 +15,11 @@ dashboard/dist/
 *.log
 npm-debug.log*
 
-# editor / OS
+# editor / OS / tooling
 .DS_Store
 .vscode/
 .idea/
+.claude/
 
 # internal planning notes (not part of the product)
 PRD.md

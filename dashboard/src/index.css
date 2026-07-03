@@ -4,6 +4,17 @@
   color-scheme: dark;
 }
 
+@keyframes fan-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.fan-spinning {
+  animation: fan-spin 2.5s linear infinite;
+  transform-origin: center;
+}
+
 body {
   margin: 0;
   background-color: #0b0f19;

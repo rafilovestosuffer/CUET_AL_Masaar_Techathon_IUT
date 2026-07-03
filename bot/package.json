@@ -1,0 +1,13 @@
+{
+  "name": "bot",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node --env-file-if-exists=../.env src/index.js",
+    "start": "node --env-file-if-exists=../.env src/index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.16.3"
+  }
+}

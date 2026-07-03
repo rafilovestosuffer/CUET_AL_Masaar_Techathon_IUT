@@ -1,0 +1,29 @@
+# dependencies
+node_modules/
+**/node_modules/
+
+# env & secrets
+.env
+.env.local
+
+# build output
+dist/
+.dist/
+dashboard/dist/
+
+# logs
+*.log
+npm-debug.log*
+
+# editor / OS
+.DS_Store
+.vscode/
+.idea/
+
+# internal planning notes (not part of the product)
+PRD.md
+TASKS.md
+ARCHITECTURE.md
+CLAUDE.md
+plan.md
+plot.md

@@ -1,0 +1,14 @@
+{
+  "name": "backend",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node --env-file-if-exists=../.env src/server.js",
+    "start": "node --env-file-if-exists=../.env src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  }
+}

@@ -41,7 +41,13 @@ function tick() {
 
 function start() {
   simStartReal = Date.now();
-  simBaseMs = Date.now();
+  if (process.env.SIM_HOUR !== undefined) {
+    const base = new Date();
+    base.setHours(Number(process.env.SIM_HOUR), 0, 0, 0);
+    simBaseMs = base.getTime();
+  } else {
+    simBaseMs = Date.now();
+  }
   lastSimMs = getSimMs();
   seedInitial();
   timer = setInterval(tick, TICK_MS);

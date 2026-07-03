@@ -2,6 +2,7 @@ const express = require("express");
 const state = require("./state");
 const aggregate = require("./aggregate");
 const sim = require("./simulator");
+const alerts = require("./alerts");
 const { ROOMS } = require("./seed");
 
 function matchRoom(name) {
@@ -52,7 +53,7 @@ router.get("/rooms/:name", (req, res) => {
   });
 });
 
-router.get("/alerts", (_req, res) => res.json({ active: [], recent: [] }));
+router.get("/alerts", (_req, res) => res.json(alerts.getAlerts()));
 
 router.post("/sim/scenario/:name", (_req, res) =>
   res.status(404).json({ error: "unknown scenario" })

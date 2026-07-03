@@ -1,6 +1,7 @@
 import { useLiveState } from "./hooks/useLiveState.js";
 import PowerMeter from "./components/PowerMeter.jsx";
 import RoomCard from "./components/RoomCard.jsx";
+import AlertsPanel from "./components/AlertsPanel.jsx";
 
 const ROOMS = [
   ["drawing", "Drawing Room"],
@@ -31,7 +32,7 @@ function LoadingScreen() {
 }
 
 export default function App() {
-  const { snapshot, connected } = useLiveState();
+  const { snapshot, connected, alerts } = useLiveState();
 
   if (!snapshot) return <LoadingScreen />;
 
@@ -51,7 +52,12 @@ export default function App() {
       )}
 
       <main className={`mx-auto max-w-6xl space-y-4 transition-opacity ${connected ? "" : "opacity-60"}`}>
-        <PowerMeter watts={totals.watts} byRoom={totals.byRoom} kwhToday={kwhToday} />
+        <div className="grid gap-4 lg:grid-cols-3">
+          <div className="lg:col-span-2">
+            <PowerMeter watts={totals.watts} byRoom={totals.byRoom} kwhToday={kwhToday} />
+          </div>
+          <AlertsPanel active={alerts.active} recent={alerts.recent} />
+        </div>
         <div className="grid gap-4 lg:grid-cols-3">
           {ROOMS.map(([key, name]) => (
             <RoomCard key={key} name={name} devices={devices.filter((d) => d.room === key)} />

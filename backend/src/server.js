@@ -3,6 +3,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const state = require("./state");
 const sim = require("./simulator");
+const alerts = require("./alerts");
 const { router, buildDevicesResponse } = require("./routes");
 
 const PORT = process.env.PORT || 3001;
@@ -30,7 +31,10 @@ state.events.on("change", () => {
   io.emit("state:update", buildDevicesResponse());
 });
 
+alerts.events.on("new", (alert) => io.emit("alert:new", alert));
+
 sim.start();
+alerts.start();
 server.listen(PORT, () => {
   console.log(`[backend] listening on http://localhost:${PORT}`);
 });

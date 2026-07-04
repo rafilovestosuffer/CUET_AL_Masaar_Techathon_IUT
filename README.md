@@ -4,23 +4,97 @@ Real-time monitoring for a small office's lights and fans. One backend simulates
 devices (3 rooms × 2 fans + 3 lights), and pushes live state to a web dashboard and a
 Discord bot — so both always show the same numbers.
 
-> Status: work in progress. Sections below are filled in as the build progresses.
+![OfficePulse dashboard — office floor map, live power meter with cost, power-over-time chart, and alerts](docs/dashboard.png)
 
 ## Problem
 
-_TODO_
+A small office runs lights and fans across three rooms. Nobody has a single, live view of
+what is on, how much power is being drawn, or how much it costs — and devices get left on
+after hours, quietly wasting energy and money. OfficePulse gives the office one real-time
+picture of every device, flags anomalies automatically, and answers questions from Discord,
+so the same facts reach a wall dashboard and the team chat at the same time.
+
+## What it does — features at a glance
+
+Every number below is computed **once, in the backend** (`backend/src/aggregate.js`) and only
+read by the dashboard and bot, so the two can never disagree.
+
+| Feature | What the judge sees | Exact numbers behind it |
+|---|---|---|
+| **Live device grid** | 15 devices across 3 rooms flip on/off with no page refresh | 3 rooms × (2 fans + 3 lights); pushed over Socket.IO on every change |
+| **Power meter** | Total watts + per-room breakdown, updating live | Sum of watts of all `on` devices; max load = **546 W** (all 15 on) |
+| **Energy today** | kWh accumulated over the day | `kWh = Σ(watts × seconds) / 3,600,000`, integrated every 5 s tick |
+| **Cost today (BDT)** | e.g. `৳5.64 today` under the meter and in `!usage` | `cost = kWh × ৳8.95/kWh` (Bangladesh commercial tariff) |
+| **Watts sparkline** | A small trend line under the meter | Rolling buffer of the **last 60 samples** (one per 5 s = last **5 minutes**) |
+| **Anomaly alerts** | Red cards on the dashboard + ⚠️ to Discord | Two rules, checked every **30 s** (below) |
+| **Wasted-energy figure** | e.g. `≈910 Wh wasted` on each alert | `Wh = watts × hours-on`, updated live per alert |
+| **Office floor map (SVG)** | Top-view layout: lights glow when on, fans spin when running | Bound directly to live device state |
+| **Discord bot** | `!status`, `!room`, `!usage` answered with real data | 3 s REST timeout; polite fallback if backend is down |
+| **AI humanizer** | Friendly, varied bot wording | Gemini rephrases **facts only**; number-integrity checked; template fallback |
+| **One-command Docker** | `docker compose up --build` runs the whole stack | Built & verified: Node 20 Alpine image, ports 3001 + 5173 |
+
+### Alert rules (checked every 30 s)
+
+- **After-hours** — any device on **outside 09:00–17:00** office hours.
+- **2-hours-continuous** — a whole room fully on for **more than 2 hours**.
+
+Alerts are de-duplicated (they fire **once**, not every tick), timestamped on the simulation
+clock, and auto-resolve when the condition clears. Each alert also carries a live `wastedWh`
+estimate: for after-hours it counts from office close (17:00), for the 2-hour rule it counts
+from when the room became fully on.
+
+### Device power ratings (fixed at seed)
+
+| Device | Watts |
+|---|---|
+| Fan 1 | 65 W |
+| Fan 2 | 72 W |
+| Light 1 | 15 W |
+| Light 2 | 12 W |
+| Light 3 | 18 W |
+
+Per room fully on = **182 W** (137 W fans + 45 W lights). Three rooms = **546 W** peak.
 
 ## Architecture
 
-_TODO — diagram in `docs/` (draw.io)._
+One backend is the **single source of truth**. It owns state, does all the math, and exposes
+the same facts two ways — a Socket.IO stream for the dashboard and a REST API for the bot.
 
-## Hardware / Wokwi
+```
+Simulator → State Store → Aggregate (all watt/kWh/cost math) → Alerts (rule engine)
+                 │
+                 ├── Socket.IO broadcast → React dashboard (live, no refresh)
+                 └── REST API (3 s timeout) → Discord bot → Gemini humanizer → Discord
+```
 
-_TODO_
+Full diagram: [`docs/system-diagram.drawio`](docs/system-diagram.drawio) (draw.io source; export
+a PNG alongside it). Data contract: [`docs/api-contract.md`](docs/api-contract.md).
+
+**Why this shape:** because the dashboard and the bot read the *same* pre-computed numbers,
+they are always consistent. The frontend and the LLM never compute or invent a value.
 
 ## Simulation design
 
-_TODO_
+The simulator (`backend/src/simulator.js`) models a realistic office day on its own clock:
+
+- **5-second tick.** Each tick nudges devices toward a schedule-driven target and integrates
+  energy for the elapsed time.
+- **Daily schedule.** Work rooms ramp on **08:45–09:15**, dip at lunch (**12:00–13:00**), and
+  switch off **17:00–18:00**; the drawing room is used sporadically.
+- **`SIM_SPEED`** multiplier accelerates the clock so a full day (and a believable kWh figure)
+  fits inside a 3-minute demo video. The simulation clock — never wall-clock — drives office
+  hours and alerts.
+- **Deterministic demo scenarios** (`POST /api/sim/scenario/:name`):
+  `forgot-devices` (Work Room 2 left fully on, clock jumped to 22:00 → fires alerts),
+  `all-off`, `business-hours`, and `reset`. Run `npm run demo:alert` to trigger one on camera.
+
+Swapping the simulator for real hardware changes nothing downstream — the rest of the system
+consumes the same device JSON.
+
+## Hardware / Wokwi
+
+_Pending — ESP32 circuit (Wokwi) and pin-mapping table delivered by the hardware track; the
+same device JSON schema as [`docs/api-contract.md`](docs/api-contract.md) proves the pipeline._
 
 ## Tech stack
 
@@ -43,26 +117,64 @@ npm run dev:all
 - Backend: http://localhost:3001
 - Bot: connects only if `DISCORD_TOKEN` is set; otherwise it skips gracefully.
 
+### Run with Docker (one command)
+
+No Node install needed — just Docker Desktop:
+
+```bash
+docker compose up --build
+```
+
+- Dashboard: http://localhost:5173
+- Backend: http://localhost:3001
+
+The dashboard and backend need **zero keys**. To enable the Discord bot, copy
+`.env.example` to `.env`, fill in the tokens, and uncomment the `env_file:` block in
+`docker-compose.yml`.
+
 ## Bot commands
 
-| Command | Description |
-|---|---|
-| `!status` | Summary of all rooms |
-| `!room <name>` | One room's devices |
-| `!usage` | Current watts + estimated kWh today |
+| Command | Description | Example reply |
+|---|---|---|
+| `!status` | Summary of all rooms | `🏢 Office status — 8/15 devices on, 414 W total (~0.5 kWh today).` |
+| `!room <name>` | One room's devices (fuzzy name match) | `💡 Work Room 2 — 5/5 on, 182 W.` |
+| `!usage` | Watts + kWh + **cost today** | `⚡ Drawing 414 W right now (~0.5 kWh, ৳4.48 today).` |
+
+Room names are fuzzy-matched, so `work2`, `workroom2`, `work 2`, and `drawing` all resolve.
+If the backend is unreachable, the bot replies politely instead of crashing.
 
 ## AI integration
 
-_TODO — LLM as a presentation layer only; fallback, timeout, number-integrity check._
+The LLM is a **presentation layer only** — it rephrases facts into friendlier wording and
+**never computes, adds, or invents a number**. Every safeguard below is real and testable:
+
+- **Facts in, words out.** The backend hands the bot exact numbers; Gemini
+  (`gemini-2.5-flash`) is asked only to reword them.
+- **3-second timeout, 1 retry.** If Gemini is slow or fails, the bot falls back to a
+  deterministic template — the reply is still correct, just less chatty.
+- **Number-integrity check.** Every number in the LLM's reply must already exist in the
+  facts; if a single number doesn't match, the reply is discarded and the template is used.
+- **Prompt-injection resistant.** Facts are treated as data, never as instructions — the bot
+  ignores any commands embedded in device labels or user text.
+- **Works with no key.** With `GEMINI_API_KEY` unset (or `BOT_LLM=off`), the bot is just as
+  accurate via templates — zero visible errors.
+- **Proactive alerts.** With `PROACTIVE=on`, the bot polls `/api/alerts` every 5 s and posts a
+  humanized ⚠️ to `#alerts`, de-duplicated by alert id so a condition is announced once.
+
+Result: the AI makes the bot pleasant to read, but accuracy never depends on it.
 
 ## Contributions
 
-_TODO_
+| Area | Owner |
+|---|---|
+| Backend, dashboard, Discord bot, AI layer, Docker | Software track |
+| ESP32 circuit, Wokwi, system diagram, hardware docs | Hardware track |
+
+_Fill in each teammate's name against their track before submission._
 
 ## Attribution
 
-Built with Express, Socket.IO, React, Vite, Tailwind, discord.js, Recharts, and the
-Google Gemini API.
+Built with Express, Socket.IO, React, Vite, Tailwind, discord.js, and the Google Gemini API.
 
 ## Future scope
 

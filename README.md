@@ -25,7 +25,7 @@ read by the dashboard and bot, so the two can never disagree.
 | **Power meter** | Total watts + per-room breakdown, updating live | Sum of watts of all `on` devices; max load = **546 W** (all 15 on) |
 | **Energy today** | kWh accumulated over the day | `kWh = Σ(watts × seconds) / 3,600,000`, integrated every 5 s tick |
 | **Cost today (BDT)** | e.g. `৳5.64 today` under the meter and in `!usage` | `cost = kWh × ৳8.95/kWh` (Bangladesh commercial tariff) |
-| **Watts sparkline** | A small trend line under the meter | Rolling buffer of the **last 60 samples** (one per 5 s = last **5 minutes**) |
+| **Live power chart** | A "Power over time" area chart under the floor map | Plots the **last 60 samples** (one per 5 s ≈ last **5 minutes**) |
 | **Anomaly alerts** | Red cards on the dashboard + ⚠️ to Discord | Two rules, checked every **30 s** (below) |
 | **Wasted-energy figure** | e.g. `≈910 Wh wasted` on each alert | `Wh = watts × hours-on`, updated live per alert |
 | **Office floor map (SVG)** | Top-view layout: lights glow when on, fans spin when running | Bound directly to live device state |
@@ -54,6 +54,18 @@ from when the room became fully on.
 | Light 3 | 18 W |
 
 Per room fully on = **182 W** (137 W fans + 45 W lights). Three rooms = **546 W** peak.
+
+## What makes it stand out
+
+- **One backend, two faces.** The dashboard and the Discord bot read the *same* pre-computed
+  numbers, so they can never show conflicting figures — a common failure in split systems.
+- **An AI that cannot lie.** The bot uses Gemini only to reword facts; a number-integrity check
+  rejects any reply whose numbers don't match the source, and it falls back to templates. Pull
+  the API key and it stays 100% accurate.
+- **Waste and money, not just watts.** Alerts show energy actually wasted (`≈910 Wh`) and the
+  meter shows real cost in Taka (`৳5.64 today`) — the office sees the problem in its own terms.
+- **Runs anywhere in one command.** `docker compose up --build` brings the whole stack up with
+  no Node install and no keys — built and verified, not just a Dockerfile on paper.
 
 ## Architecture
 

@@ -10,13 +10,13 @@ export default function AlertsPanel({ active, recent }) {
       <h2 className="mb-3 text-xs uppercase tracking-wide text-gray-400">Alerts</h2>
 
       {active.length === 0 ? (
-        <div className="rounded-lg border border-white/10 bg-white/5 px-4 py-6 text-center text-sm text-gray-400">
+        <div role="status" className="rounded-lg border border-white/10 bg-white/5 px-4 py-6 text-center text-sm text-gray-400">
           All clear ✅ — no anomalies
         </div>
       ) : (
         <ul className="space-y-2">
           {active.map((a) => (
-            <li key={a.id} className="rounded-lg border-l-4 border-red-500 bg-red-500/10 px-3 py-2">
+            <li key={a.id} role="alert" className="rounded-lg border-l-4 border-red-500 bg-red-500/10 px-3 py-2">
               <div className="text-sm text-red-100">{a.message}</div>
               <div className="mt-0.5 flex justify-between text-xs text-red-300/70">
                 <span>{formatTime(a.createdAt)}</span>

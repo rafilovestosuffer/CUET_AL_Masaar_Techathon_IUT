@@ -26,6 +26,8 @@ export default function DeviceBadge({ device }) {
   const on = device.status === "on";
   return (
     <div
+      role="status"
+      aria-label={`${device.label}: ${on ? "on" : "off"}, ${device.watts} watts`}
       className={`flex items-center gap-2 rounded-lg border px-3 py-2 transition-colors ${
         on ? "border-amber-400/50 bg-amber-400/10 text-amber-300" : "border-white/10 bg-white/5 text-gray-500"
       }`}

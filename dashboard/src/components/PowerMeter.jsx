@@ -2,7 +2,11 @@ import RoomBreakdown from "./RoomBreakdown.jsx";
 
 export default function PowerMeter({ watts, byRoom, kwhToday, costToday }) {
   return (
-    <section className="rounded-xl border border-white/10 bg-white/5 p-5 transition-colors hover:border-white/20">
+    <section
+      className="rounded-xl border border-white/10 bg-white/5 p-5 transition-colors hover:border-white/20"
+      role="status"
+      aria-label={`Total power ${watts} watts, ${kwhToday} kilowatt-hours today, ৳${costToday} today`}
+    >
       <div className="flex items-end justify-between">
         <div>
           <div className="text-xs uppercase tracking-wide text-gray-400">Total power</div>

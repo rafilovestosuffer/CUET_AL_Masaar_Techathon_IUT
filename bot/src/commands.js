@@ -1,6 +1,9 @@
 const api = require("./api");
 const t = require("./templates");
 const { humanize } = require("./humanize");
+const { handleAsk } = require("./ask");
+
+const ASK_ENABLED = (process.env.BOT_ASK || "on") !== "off";
 
 function matchRoom(name) {
   const n = String(name).toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -35,6 +38,13 @@ async function handleCommand(content) {
         if (status === 404) return t.unknownRoomReply();
         return humanize("room", t.roomFacts(data), t.roomReply(data));
       }
+      case "ask": {
+        if (!ASK_ENABLED) return null;
+        if (!arg) return "Ask me a question, e.g. `!ask which room is wasting the most?`";
+        return handleAsk(arg);
+      }
+      case "help":
+        return t.helpReply();
       default:
         return null;
     }

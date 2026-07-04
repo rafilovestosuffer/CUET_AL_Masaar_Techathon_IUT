@@ -74,6 +74,16 @@ function unknownRoomReply() {
   return `I don't know that room. Try: ${ROOMS.join(", ")}.`;
 }
 
+function helpReply() {
+  return [
+    "🤖 **OfficePulse** — I watch the office lights & fans.",
+    "`!status` — every room at a glance",
+    "`!room <name>` — one room (e.g. `!room work2`)",
+    "`!usage` — power, energy & cost today",
+    "`!ask <question>` — ask me anything, e.g. `!ask which room wastes the most?`",
+  ].join("\n");
+}
+
 module.exports = {
   statusReply,
   roomReply,
@@ -85,4 +95,5 @@ module.exports = {
   alertFacts,
   backendDownReply,
   unknownRoomReply,
+  helpReply,
 };

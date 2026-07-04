@@ -30,7 +30,10 @@ read by the dashboard and bot, so the two can never disagree.
 | **Wasted-energy figure** | e.g. `≈910 Wh · ৳8.14 wasted` on each alert | `Wh = watts × hours-on`, valued at the tariff, updated live |
 | **Cost intelligence** | Insights strip: biggest-draw room, `≈৳1591/month` at this rate, `৳X wasted today` | `GET /api/insights`, computed once in `backend/src/insights.js` |
 | **Ask-anything bot** | `!ask which room wastes the most?` → a friendly, accurate answer | LLM answers from backend facts only; number-checked; deterministic fallback |
-| **Office floor map (SVG)** | Top-view layout: lights glow when on, fans spin when running | Bound directly to live device state |
+| **Office floor map (isometric SVG)** | Tilted top-view 3D-style layout: glowing light pools, spinning ceiling fans, alert rooms pulse red | Pure SVG, no extra dependency; bound directly to live device state |
+
+> Note: the problem statement's own device count is inconsistent (15 on page 1, 18 elsewhere).
+> We follow the fixed office setup — 3 rooms × 5 devices (2 fans + 3 lights) = **15 devices**.
 | **Discord bot** | `!status`, `!room`, `!usage` answered with real data | 3 s REST timeout; polite fallback if backend is down |
 | **AI humanizer** | Friendly, varied bot wording | Gemini rephrases **facts only**; number-integrity checked; template fallback |
 | **One-command Docker** | `docker compose up --build` runs the whole stack | Built & verified: Node 20 Alpine image, ports 3001 + 5173 |
@@ -176,6 +179,9 @@ The dashboard and backend need **zero keys**. To enable the Discord bot, copy
 | `!status` | Summary of all rooms | `🏢 Office status — 8/15 devices on, 414 W total (~0.5 kWh today).` |
 | `!room <name>` | One room's devices (fuzzy name match) | `💡 Work Room 2 — 5/5 on, 182 W.` |
 | `!usage` | Watts + kWh + **cost today** | `⚡ Drawing 414 W right now (~0.5 kWh, ৳4.48 today).` |
+| `!alerts` | Active anomalies right now | `🚨 1 active alert:\n⚠️ [10:00 PM] Work Room 2 has 5 devices on after hours. (৳8.15 wasted)` |
+| `!cost` | Today's bill + monthly projection | `💰 Today's bill so far: ৳0.19 (~0.021 kWh). At this rate, about ৳2461.5 this month.` |
+| `!waste` | Biggest draw + wasted cost today | `🔍 Biggest draw right now: Work Room 1 (182 W). Wasted today: ৳0.` |
 | `!ask <question>` | **Natural-language Q&A** over live facts | `!ask which room wastes the most?` → `💸 Work Room 2 — ৳8.14 already.` |
 | `!help` | Lists every command | — |
 

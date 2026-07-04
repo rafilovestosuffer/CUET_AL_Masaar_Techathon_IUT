@@ -6,8 +6,4 @@ dist
 .env
 .env.local
 *.log
-.claude
-PRD.md
-TASKS.md
-ARCHITECTURE.md
-CLAUDE.md
+

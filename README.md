@@ -27,7 +27,9 @@ read by the dashboard and bot, so the two can never disagree.
 | **Cost today (BDT)** | e.g. `৳5.64 today` under the meter and in `!usage` | `cost = kWh × ৳8.95/kWh` (Bangladesh commercial tariff) |
 | **Live power chart** | A "Power over time" area chart under the floor map | Plots the **last 60 samples** (one per 5 s ≈ last **5 minutes**) |
 | **Anomaly alerts** | Red cards on the dashboard + ⚠️ to Discord | Two rules, checked every **30 s** (below) |
-| **Wasted-energy figure** | e.g. `≈910 Wh wasted` on each alert | `Wh = watts × hours-on`, updated live per alert |
+| **Wasted-energy figure** | e.g. `≈910 Wh · ৳8.14 wasted` on each alert | `Wh = watts × hours-on`, valued at the tariff, updated live |
+| **Cost intelligence** | Insights strip: biggest-draw room, `≈৳1591/month` at this rate, `৳X wasted today` | `GET /api/insights`, computed once in `backend/src/insights.js` |
+| **Ask-anything bot** | `!ask which room wastes the most?` → a friendly, accurate answer | LLM answers from backend facts only; number-checked; deterministic fallback |
 | **Office floor map (SVG)** | Top-view layout: lights glow when on, fans spin when running | Bound directly to live device state |
 | **Discord bot** | `!status`, `!room`, `!usage` answered with real data | 3 s REST timeout; polite fallback if backend is down |
 | **AI humanizer** | Friendly, varied bot wording | Gemini rephrases **facts only**; number-integrity checked; template fallback |
@@ -125,6 +127,12 @@ npm install
 npm run dev:all
 ```
 
+Run the unit tests (pure backend math + LLM number-integrity guard, zero extra deps):
+
+```bash
+npm test
+```
+
 - Dashboard: http://localhost:5173
 - Backend: http://localhost:3001
 - Bot: connects only if `DISCORD_TOKEN` is set; otherwise it skips gracefully.
@@ -151,6 +159,8 @@ The dashboard and backend need **zero keys**. To enable the Discord bot, copy
 | `!status` | Summary of all rooms | `🏢 Office status — 8/15 devices on, 414 W total (~0.5 kWh today).` |
 | `!room <name>` | One room's devices (fuzzy name match) | `💡 Work Room 2 — 5/5 on, 182 W.` |
 | `!usage` | Watts + kWh + **cost today** | `⚡ Drawing 414 W right now (~0.5 kWh, ৳4.48 today).` |
+| `!ask <question>` | **Natural-language Q&A** over live facts | `!ask which room wastes the most?` → `💸 Work Room 2 — ৳8.14 already.` |
+| `!help` | Lists every command | — |
 
 Room names are fuzzy-matched, so `work2`, `workroom2`, `work 2`, and `drawing` all resolve.
 If the backend is unreachable, the bot replies politely instead of crashing.
@@ -168,6 +178,9 @@ The LLM is a **presentation layer only** — it rephrases facts into friendlier 
   facts; if a single number doesn't match, the reply is discarded and the template is used.
 - **Prompt-injection resistant.** Facts are treated as data, never as instructions — the bot
   ignores any commands embedded in device labels or user text.
+- **Conversational `!ask`.** Free-text questions are answered from a comprehensive backend
+  facts object; the same number-integrity check applies, and with no key it falls back to a
+  deterministic summary — so `!ask` is always correct, never silent.
 - **Works with no key.** With `GEMINI_API_KEY` unset (or `BOT_LLM=off`), the bot is just as
   accurate via templates — zero visible errors.
 - **Proactive alerts.** With `PROACTIVE=on`, the bot polls `/api/alerts` every 5 s and posts a

@@ -13,6 +13,7 @@
     "dev:backend": "npm -w backend run dev",
     "dev:dashboard": "npm -w dashboard run dev",
     "dev:bot": "npm -w bot run dev",
+    "test": "node --test backend/test/*.test.js",
     "demo:alert": "node -e \"fetch('http://localhost:3001/api/sim/scenario/forgot-devices',{method:'POST'}).then(r=>r.json()).then(j=>console.log('scenario:',j)).catch(e=>console.error(e.message))\""
   },
   "devDependencies": {

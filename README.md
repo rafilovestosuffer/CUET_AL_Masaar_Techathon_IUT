@@ -77,15 +77,18 @@ Per room fully on = **182 W** (137 W fans + 45 W lights). Three rooms = **546 W*
 One backend is the **single source of truth**. It owns state, does all the math, and exposes
 the same facts two ways — a Socket.IO stream for the dashboard and a REST API for the bot.
 
-```
-Simulator → State Store → Aggregate (all watt/kWh/cost math) → Alerts (rule engine)
-                 │
-                 ├── Socket.IO broadcast → React dashboard (live, no refresh)
-                 └── REST API (3 s timeout) → Discord bot → Gemini humanizer → Discord
-```
+![OfficePulse system architecture — device layer, backend layer, consumer layer](docs/Diagram.drawio.png)
 
-Full diagram: [`docs/system-diagram.drawio`](docs/system-diagram.drawio) (draw.io source; export
-a PNG alongside it). Data contract: [`docs/api-contract.md`](docs/api-contract.md).
+15 simulated devices flow into the backend's simulator, which updates one shared state store.
+Aggregate turns that state into watts/kWh/cost, and alerts watches it for anomalies — nothing
+downstream ever recomputes a number. From there the same facts fan out two ways: Socket.IO
+pushes them straight to the React dashboard for live, no-refresh updates, while the REST API
+feeds the Discord bot (3 s timeout), which hands the facts to Gemini to phrase a friendly reply.
+A real ESP32 deployment would only replace the device layer over MQTT — everything to its right
+stays the same.
+
+Full diagram: [`docs/system-diagram.drawio`](docs/system-diagram.drawio) (draw.io source).
+Data contract: [`docs/api-contract.md`](docs/api-contract.md).
 
 **Why this shape:** because the dashboard and the bot read the *same* pre-computed numbers,
 they are always consistent. The frontend and the LLM never compute or invent a value.

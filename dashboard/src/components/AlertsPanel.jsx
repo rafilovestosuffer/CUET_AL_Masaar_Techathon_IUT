@@ -20,7 +20,9 @@ export default function AlertsPanel({ active, recent }) {
               <div className="text-sm text-red-100">{a.message}</div>
               <div className="mt-0.5 flex justify-between text-xs text-red-300/70">
                 <span>{formatTime(a.createdAt)}</span>
-                {a.wastedWh > 0 && <span>≈{a.wastedWh} Wh wasted</span>}
+                {a.wastedWh > 0 && (
+                  <span>≈{a.wastedWh} Wh · ৳{a.wastedTaka} wasted</span>
+                )}
               </div>
             </li>
           ))}

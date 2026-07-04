@@ -20,6 +20,40 @@ const FAN_SLOTS = [
   [164, 320],
 ];
 
+const FURN_STROKE = "#374151";
+const FURN_FILL = "rgba(255,255,255,0.03)";
+
+// Static, muted furniture so the layout reads like the office floor plan (desks, chairs,
+// a waiting-room sofa) without competing with the live device colours.
+function Desk({ x, y }) {
+  return (
+    <g stroke={FURN_STROKE} strokeWidth={1.5} fill={FURN_FILL}>
+      <rect x={x} y={y} width={74} height={24} rx={3} />
+      <rect x={x + 26} y={y + 28} width={22} height={16} rx={7} />
+    </g>
+  );
+}
+
+function Sofa({ x, y }) {
+  return (
+    <g stroke={FURN_STROKE} strokeWidth={1.5} fill={FURN_FILL}>
+      <rect x={x} y={y} width={150} height={44} rx={10} />
+      <rect x={x + 12} y={y + 10} width={126} height={26} rx={6} />
+      <rect x={x + 52} y={y + 54} width={46} height={20} rx={4} />
+    </g>
+  );
+}
+
+function Furniture({ roomKey, x, y }) {
+  if (roomKey === "drawing") return <Sofa x={x + 52} y={y + 230} />;
+  return (
+    <>
+      <Desk x={x + 34} y={y + 232} />
+      <Desk x={x + 146} y={y + 232} />
+    </>
+  );
+}
+
 function Light({ cx, cy, on }) {
   return (
     <g>
@@ -80,6 +114,8 @@ export default function OfficeMap({ devices }) {
               <text x={room.x + ROOM_W / 2} y={ROOM_Y + 28} textAnchor="middle" fontSize={15} fill="#9ca3af">
                 {room.name}
               </text>
+
+              <Furniture roomKey={room.key} x={room.x} y={ROOM_Y} />
 
               {lights.map((d, i) => (
                 <Light key={d.id} cx={room.x + LIGHT_SLOTS[i][0]} cy={ROOM_Y + LIGHT_SLOTS[i][1]} on={d.status === "on"} />

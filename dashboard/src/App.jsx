@@ -4,6 +4,7 @@ import RoomCard from "./components/RoomCard.jsx";
 import AlertsPanel from "./components/AlertsPanel.jsx";
 import OfficeMap from "./components/OfficeMap.jsx";
 import LiveChart from "./components/LiveChart.jsx";
+import InsightsBar from "./components/InsightsBar.jsx";
 
 const SHOW_OFFICE_MAP = true;
 
@@ -40,7 +41,7 @@ export default function App() {
 
   if (!snapshot) return <LoadingScreen />;
 
-  const { devices, totals, kwhToday, costToday, wattsHistory } = snapshot;
+  const { devices, totals, kwhToday, costToday, wattsHistory, insights } = snapshot;
 
   return (
     <div className="min-h-screen p-4 sm:p-6">
@@ -64,6 +65,7 @@ export default function App() {
               </div>
               <div className="space-y-4">
                 <PowerMeter watts={totals.watts} byRoom={totals.byRoom} kwhToday={kwhToday} costToday={costToday} />
+                <InsightsBar insights={insights} />
                 <AlertsPanel active={alerts.active} recent={alerts.recent} />
               </div>
             </>

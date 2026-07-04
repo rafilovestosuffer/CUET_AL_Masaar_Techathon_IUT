@@ -1,6 +1,6 @@
 import RoomBreakdown from "./RoomBreakdown.jsx";
 
-export default function PowerMeter({ watts, byRoom, kwhToday }) {
+export default function PowerMeter({ watts, byRoom, kwhToday, costToday }) {
   return (
     <section className="rounded-xl border border-white/10 bg-white/5 p-5">
       <div className="flex items-end justify-between">
@@ -16,6 +16,9 @@ export default function PowerMeter({ watts, byRoom, kwhToday }) {
           <div className="text-2xl font-semibold text-gray-200">
             {kwhToday}
             <span className="text-sm font-normal text-gray-400"> kWh</span>
+          </div>
+          <div className="mt-1 text-sm font-medium text-emerald-400">
+            ৳{costToday} <span className="font-normal text-gray-500">today</span>
           </div>
         </div>
       </div>

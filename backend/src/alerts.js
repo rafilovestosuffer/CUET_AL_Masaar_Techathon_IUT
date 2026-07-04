@@ -1,6 +1,7 @@
 const { EventEmitter } = require("events");
 const state = require("./state");
 const sim = require("./simulator");
+const aggregate = require("./aggregate");
 
 const events = new EventEmitter();
 
@@ -18,6 +19,14 @@ const fullOnSince = {};
 let seq = 0;
 let timer = null;
 
+// Start of the after-hours window for a given sim moment: today's close hour if it's
+// evening, otherwise midnight (devices left on into the small hours).
+function closeMs(simMs) {
+  const d = new Date(simMs);
+  d.setHours(d.getHours() >= CLOSE_HOUR ? CLOSE_HOUR : 0, 0, 0, 0);
+  return d.getTime();
+}
+
 function fire(key, rule, room, message) {
   if (active.has(key)) return;
   const alert = {
@@ -25,6 +34,7 @@ function fire(key, rule, room, message) {
     rule,
     room,
     message,
+    wastedWh: 0,
     createdAt: sim.getSimTime(),
     active: true,
   };
@@ -36,6 +46,7 @@ function fire(key, rule, room, message) {
 
 function evaluate() {
   const { devices } = state.getSnapshot();
+  const { byRoom } = aggregate.computeTotals(devices);
   const simMs = sim.getSimMs();
   const hour = new Date(simMs).getHours();
   const afterHours = hour < OPEN_HOUR || hour >= CLOSE_HOUR;
@@ -49,6 +60,7 @@ function evaluate() {
       const key = `after-hours:${room}`;
       live.add(key);
       fire(key, "after-hours", room, `${LABELS[room]} has ${onCount} device${onCount > 1 ? "s" : ""} on after hours.`);
+      active.get(key).wastedWh = aggregate.wastedWh(byRoom[room], (simMs - closeMs(simMs)) / 1000);
     }
 
     const allOn = roomDevices.length > 0 && onCount === roomDevices.length;
@@ -58,6 +70,7 @@ function evaluate() {
         const key = `2h-continuous:${room}`;
         live.add(key);
         fire(key, "2h-continuous", room, `${LABELS[room]} has been fully on for over ${CONTINUOUS_HOURS} hours.`);
+        active.get(key).wastedWh = aggregate.wastedWh(byRoom[room], (simMs - fullOnSince[room]) / 1000);
       }
     } else {
       fullOnSince[room] = null;

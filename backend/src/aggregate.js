@@ -1,4 +1,10 @@
+// Bangladesh commercial electricity tariff (BDT per kWh), used for cost estimates only.
+const BDT_PER_KWH = 8.95;
+
+const HISTORY_LIMIT = 60;
+
 let kwhToday = 0;
+const wattsHistory = [];
 
 function computeTotals(devices) {
   const byRoom = { drawing: 0, work1: 0, work2: 0 };
@@ -22,8 +28,35 @@ function getKwhToday() {
   return Number(kwhToday.toFixed(3));
 }
 
+function getCostToday() {
+  return Number((kwhToday * BDT_PER_KWH).toFixed(2));
+}
+
+function wastedWh(watts, elapsedSeconds) {
+  if (watts <= 0 || elapsedSeconds <= 0) return 0;
+  return Math.round((watts * elapsedSeconds) / 3600);
+}
+
+function recordWatts(watts) {
+  wattsHistory.push(watts);
+  if (wattsHistory.length > HISTORY_LIMIT) wattsHistory.shift();
+}
+
+function getWattsHistory() {
+  return wattsHistory.slice();
+}
+
 function resetKwh() {
   kwhToday = 0;
 }
 
-module.exports = { computeTotals, addEnergy, getKwhToday, resetKwh };
+module.exports = {
+  computeTotals,
+  addEnergy,
+  getKwhToday,
+  getCostToday,
+  wastedWh,
+  recordWatts,
+  getWattsHistory,
+  resetKwh,
+};

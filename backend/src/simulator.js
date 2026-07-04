@@ -74,7 +74,9 @@ function applySchedule(smooth) {
 
 function tick() {
   const simNow = getSimMs();
-  aggregate.addEnergy(aggregate.computeTotals(state.getSnapshot().devices).watts, (simNow - lastSimMs) / 1000);
+  const watts = aggregate.computeTotals(state.getSnapshot().devices).watts;
+  aggregate.addEnergy(watts, (simNow - lastSimMs) / 1000);
+  aggregate.recordWatts(watts);
   lastSimMs = simNow;
   applySchedule(true);
 }

@@ -21,6 +21,8 @@ function buildDevicesResponse() {
     devices,
     totals: { watts, byRoom },
     kwhToday: aggregate.getKwhToday(),
+    costToday: aggregate.getCostToday(),
+    wattsHistory: aggregate.getWattsHistory(),
     simTime: sim.getSimTime(),
   };
 }
@@ -32,6 +34,7 @@ function buildUsage() {
     watts,
     byRoom,
     kwhToday: aggregate.getKwhToday(),
+    costToday: aggregate.getCostToday(),
     simTime: sim.getSimTime(),
   };
 }

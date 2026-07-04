@@ -27,6 +27,9 @@ Rooms: `drawing`, `work1`, `work2`.
 - `watts`: fixed per device at seed (fans 60–75W, lights 12–18W)
 - `id` pattern: `<room>-<type>-<n>` (fans 1–2, lights 1–3)
 
+`costToday` = `kwhToday` × ৳8.95/kWh (Bangladesh commercial tariff). `wattsHistory` is a
+rolling buffer of the last 60 total-watt samples (one per 5s tick) for the dashboard sparkline.
+
 ## REST endpoints
 
 ### GET /api/devices
@@ -36,6 +39,8 @@ Full device snapshot.
   "devices": [ /* Device[] */ ],
   "totals": { "watts": 740, "byRoom": { "drawing": 90, "work1": 0, "work2": 650 } },
   "kwhToday": 4.2,
+  "costToday": 37.59,
+  "wattsHistory": [ 720, 740, 650 ],
   "simTime": "2026-07-03T14:22:05Z"
 }
 ```
@@ -51,7 +56,7 @@ Error: `404 { "error": "unknown room", "known": ["drawing", "work1", "work2"] }`
 ### GET /api/usage
 Power summary for bot + dashboard.
 ```json
-{ "watts": 740, "byRoom": { "drawing": 90, "work1": 0, "work2": 650 }, "kwhToday": 4.2, "simTime": "..." }
+{ "watts": 740, "byRoom": { "drawing": 90, "work1": 0, "work2": 650 }, "kwhToday": 4.2, "costToday": 37.59, "simTime": "..." }
 ```
 
 ### GET /api/alerts
@@ -66,11 +71,13 @@ Active + recent alerts.
   "rule": "after-hours",
   "room": "work2",
   "message": "Work Room 2 has devices on after hours.",
+  "wastedWh": 910,
   "createdAt": "2026-07-03T22:05:00Z",
   "active": true
 }
 ```
 - `rule`: `"after-hours"` | `"2h-continuous"`
+- `wastedWh`: backend estimate of energy wasted so far by the flagged room (watts × hours), updated live.
 
 ### POST /api/sim/scenario/:name
 Deterministic demo triggers. `name` ∈ `forgot-devices` | `all-off` | `business-hours` | `reset`.

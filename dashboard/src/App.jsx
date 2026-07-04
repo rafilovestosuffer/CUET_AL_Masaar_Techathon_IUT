@@ -3,6 +3,7 @@ import PowerMeter from "./components/PowerMeter.jsx";
 import RoomCard from "./components/RoomCard.jsx";
 import AlertsPanel from "./components/AlertsPanel.jsx";
 import OfficeMap from "./components/OfficeMap.jsx";
+import LiveChart from "./components/LiveChart.jsx";
 
 const SHOW_OFFICE_MAP = true;
 
@@ -39,7 +40,7 @@ export default function App() {
 
   if (!snapshot) return <LoadingScreen />;
 
-  const { devices, totals, kwhToday } = snapshot;
+  const { devices, totals, kwhToday, costToday, wattsHistory } = snapshot;
 
   return (
     <div className="min-h-screen p-4 sm:p-6">
@@ -62,19 +63,21 @@ export default function App() {
                 <OfficeMap devices={devices} />
               </div>
               <div className="space-y-4">
-                <PowerMeter watts={totals.watts} byRoom={totals.byRoom} kwhToday={kwhToday} />
+                <PowerMeter watts={totals.watts} byRoom={totals.byRoom} kwhToday={kwhToday} costToday={costToday} />
                 <AlertsPanel active={alerts.active} recent={alerts.recent} />
               </div>
             </>
           ) : (
             <>
               <div className="lg:col-span-2">
-                <PowerMeter watts={totals.watts} byRoom={totals.byRoom} kwhToday={kwhToday} />
+                <PowerMeter watts={totals.watts} byRoom={totals.byRoom} kwhToday={kwhToday} costToday={costToday} />
               </div>
               <AlertsPanel active={alerts.active} recent={alerts.recent} />
             </>
           )}
         </div>
+
+        <LiveChart data={wattsHistory} />
         <div className="grid gap-4 lg:grid-cols-3">
           {ROOMS.map(([key, name]) => (
             <RoomCard key={key} name={name} devices={devices.filter((d) => d.room === key)} />

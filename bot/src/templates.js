@@ -20,7 +20,7 @@ function roomReply(data) {
 }
 
 function usageReply(data) {
-  return `⚡ The office is drawing ${data.watts} W right now (~${data.kwhToday} kWh today).\nBy room — Drawing ${data.byRoom.drawing} W · Work 1 ${data.byRoom.work1} W · Work 2 ${data.byRoom.work2} W.`;
+  return `⚡ The office is drawing ${data.watts} W right now (~${data.kwhToday} kWh, ৳${data.costToday} today).\nBy room — Drawing ${data.byRoom.drawing} W · Work 1 ${data.byRoom.work1} W · Work 2 ${data.byRoom.work2} W.`;
 }
 
 function statusFacts(data) {
@@ -38,7 +38,7 @@ function statusFacts(data) {
 }
 
 function usageFacts(data) {
-  return { watts: data.watts, kwhToday: data.kwhToday, byRoom: data.byRoom };
+  return { watts: data.watts, kwhToday: data.kwhToday, costToday: data.costToday, byRoom: data.byRoom };
 }
 
 function roomFacts(data) {
@@ -53,11 +53,17 @@ function roomFacts(data) {
 }
 
 function alertReply(alert) {
-  return `⚠️ ${alert.message}`;
+  const wasted = alert.wastedWh > 0 ? ` About ${alert.wastedWh} Wh wasted so far.` : "";
+  return `⚠️ ${alert.message}${wasted}`;
 }
 
 function alertFacts(alert) {
-  return { room: LABELS[alert.room] || alert.room, rule: alert.rule, message: alert.message };
+  return {
+    room: LABELS[alert.room] || alert.room,
+    rule: alert.rule,
+    message: alert.message,
+    wastedWh: alert.wastedWh || 0,
+  };
 }
 
 function backendDownReply() {

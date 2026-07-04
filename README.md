@@ -236,8 +236,8 @@ Result: the AI makes the bot pleasant to read, but accuracy never depends on it.
 | Area | Owner |
 |---|---|
 | Backend, dashboard, UI/UX, Discord bot, AI/LLM layer, Docker, documentation | Rafi |
-| ESP32 circuit, IoT | Nahid, Shorov |
-| Documentation, IoT | Shahed |
+| ESP32 circuit, IoT | Nahid, Shorov , shahed |
+
 
 ## Attribution
 

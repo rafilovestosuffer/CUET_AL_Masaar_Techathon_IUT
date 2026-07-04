@@ -111,6 +111,14 @@ function wasteFacts(data) {
   };
 }
 
+function scenarioTriggeredReply(name) {
+  return `🎬 Triggered demo scenario: \`${name}\`. Check the dashboard.`;
+}
+
+function unknownScenarioReply(known) {
+  return `I don't know that scenario. Try: ${known.join(", ")}.`;
+}
+
 function backendDownReply() {
   return "I can't reach the office sensors right now — try again in a minute.";
 }
@@ -129,6 +137,7 @@ function helpReply() {
     "`!cost` — today's bill & monthly projection",
     "`!waste` — biggest draw & wasted cost today",
     "`!ask <question>` — ask me anything, e.g. `!ask which room wastes the most?`",
+    "`!demo <scenario>` — trigger a demo scenario (forgot-devices, all-off, business-hours, reset)",
   ].join("\n");
 }
 
@@ -149,5 +158,7 @@ module.exports = {
   wasteFacts,
   backendDownReply,
   unknownRoomReply,
+  scenarioTriggeredReply,
+  unknownScenarioReply,
   helpReply,
 };

@@ -4,6 +4,7 @@ const { humanize } = require("./humanize");
 const { handleAsk } = require("./ask");
 
 const ASK_ENABLED = (process.env.BOT_ASK || "on") !== "off";
+const SCENARIOS = ["forgot-devices", "all-off", "business-hours", "reset"];
 
 function matchRoom(name) {
   const n = String(name).toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -49,6 +50,13 @@ async function handleCommand(content) {
       case "waste": {
         const data = await api.getInsights();
         return humanize("waste", t.wasteFacts(data), t.wasteReply(data));
+      }
+      case "demo": {
+        const name = arg.trim();
+        if (!SCENARIOS.includes(name)) return t.unknownScenarioReply(SCENARIOS);
+        const { status } = await api.triggerScenario(name);
+        if (status >= 400) return t.unknownScenarioReply(SCENARIOS);
+        return t.scenarioTriggeredReply(name);
       }
       case "ask": {
         if (!ASK_ENABLED) return null;

@@ -40,4 +40,18 @@ async function getInsights() {
   return data;
 }
 
-module.exports = { getUsage, getDevices, getRoom, getAlerts, getInsights };
+async function triggerScenario(name) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/sim/scenario/${encodeURIComponent(name)}`, {
+      method: "POST",
+      signal: controller.signal,
+    });
+    return { status: res.status, data: await res.json() };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+module.exports = { getUsage, getDevices, getRoom, getAlerts, getInsights, triggerScenario };

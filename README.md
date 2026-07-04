@@ -31,12 +31,12 @@ read by the dashboard and bot, so the two can never disagree.
 | **Cost intelligence** | Insights strip: biggest-draw room, `≈৳1591/month` at this rate, `৳X wasted today` | `GET /api/insights`, computed once in `backend/src/insights.js` |
 | **Ask-anything bot** | `!ask which room wastes the most?` → a friendly, accurate answer | LLM answers from backend facts only; number-checked; deterministic fallback |
 | **Office floor map (isometric SVG)** | Tilted top-view 3D-style layout: glowing light pools, spinning ceiling fans, alert rooms pulse red | Pure SVG, no extra dependency; bound directly to live device state |
-
-> Note: the problem statement's own device count is inconsistent (15 on page 1, 18 elsewhere).
-> We follow the fixed office setup — 3 rooms × 5 devices (2 fans + 3 lights) = **15 devices**.
 | **Discord bot** | `!status`, `!room`, `!usage` answered with real data | 3 s REST timeout; polite fallback if backend is down |
 | **AI humanizer** | Friendly, varied bot wording | Gemini rephrases **facts only**; number-integrity checked; template fallback |
 | **One-command Docker** | `docker compose up --build` runs the whole stack | Built & verified: Node 20 Alpine image, ports 3001 + 5173 |
+
+> Note: the problem statement's own device count is inconsistent (15 on page 1, 18 elsewhere).
+> We follow the fixed office setup — 3 rooms × 5 devices (2 fans + 3 lights) = **15 devices**.
 
 ### Alert rules (checked every 30 s)
 
@@ -163,7 +163,8 @@ npm install
 npm run dev:all
 ```
 
-Run the unit tests (pure backend math + LLM number-integrity guard, zero extra deps):
+Run the tests — backend math, REST endpoints, bot command routing, and the LLM
+number-integrity guard (26 cases, zero extra deps):
 
 ```bash
 npm test
@@ -236,7 +237,7 @@ Result: the AI makes the bot pleasant to read, but accuracy never depends on it.
 |---|---|
 | Backend, dashboard, UI/UX, Discord bot, AI/LLM layer, Docker, documentation | Rafi |
 | ESP32 circuit, IoT | Nahid, Shorov |
-| Documentation, IoT | Shahed
+| Documentation, IoT | Shahed |
 
 ## Attribution
 

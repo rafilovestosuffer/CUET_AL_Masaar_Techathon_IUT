@@ -61,7 +61,7 @@ export default function App() {
           {SHOW_OFFICE_MAP ? (
             <>
               <div className="lg:col-span-2">
-                <OfficeMap devices={devices} />
+                <OfficeMap devices={devices} alertRooms={alerts.active.map((a) => a.room)} />
               </div>
               <div className="space-y-4">
                 <PowerMeter watts={totals.watts} byRoom={totals.byRoom} kwhToday={kwhToday} costToday={costToday} />

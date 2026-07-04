@@ -128,10 +128,19 @@ alert on camera. Since flips are probabilistic, do a couple of dry runs before r
 real. Revert to plain `npm run dev:all` afterward — judges cloning the repo should see
 realistic real-time behavior, not the sped-up recording settings.
 
-## Hardware / Wokwi
+## Hardware — ESP32 circuit
 
-_Pending — ESP32 circuit (Wokwi) and pin-mapping table delivered by the hardware track; the
-same device JSON schema as [`docs/api-contract.md`](docs/api-contract.md) proves the pipeline._
+An **ESP32-S3** independently switches and current-monitors **five AC loads** — three lamps and
+two fans — one sense-and-switch channel per device. Each load runs through an IRFZ44N MOSFET
+(GPIO-driven on/off) in series with an ACS758 Hall-effect current sensor (analog `VOUT` into the
+ADC), so the firmware knows both whether a load is on and how much it actually draws.
+
+![ESP32 AC load-monitoring and switching schematic](docs/circuit-diagram.png)
+
+This board is one room; the backend simulates three of them (15 devices) over the **same
+per-device JSON** as [`docs/api-contract.md`](docs/api-contract.md), so real ESP32 nodes could
+replace the simulator with nothing downstream changing. Full channel map, BOM, and wiring notes:
+[`docs/hardware.md`](docs/hardware.md).
 
 ## Tech stack
 
@@ -186,6 +195,7 @@ The dashboard and backend need **zero keys**. To enable the Discord bot, copy
 | `!cost` | Today's bill + monthly projection | `💰 Today's bill so far: ৳0.19 (~0.021 kWh). At this rate, about ৳2461.5 this month.` |
 | `!waste` | Biggest draw + wasted cost today | `🔍 Biggest draw right now: Work Room 1 (182 W). Wasted today: ৳0.` |
 | `!ask <question>` | **Natural-language Q&A** over live facts | `!ask which room wastes the most?` → `💸 Work Room 2 — ৳8.14 already.` |
+| `!demo <scenario>` | Triggers a canned demo scenario (`forgot-devices`, `all-off`, `business-hours`, `reset`) | `!demo forgot-devices` → `🎬 Triggered demo scenario: forgot-devices. Check the dashboard.` |
 | `!help` | Lists every command | — |
 
 Room names are fuzzy-matched, so `work2`, `workroom2`, `work 2`, and `drawing` all resolve.
@@ -219,7 +229,7 @@ Result: the AI makes the bot pleasant to read, but accuracy never depends on it.
 | Area | Owner |
 |---|---|
 | Backend, dashboard, Discord bot, AI layer, Docker | Software track |
-| ESP32 circuit, Wokwi, system diagram, hardware docs | Hardware track |
+| ESP32 circuit, system diagram, hardware docs | Hardware track |
 
 _Fill in each teammate's name against their track before submission._
 

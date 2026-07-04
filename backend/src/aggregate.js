@@ -37,6 +37,17 @@ function wastedWh(watts, elapsedSeconds) {
   return Math.round((watts * elapsedSeconds) / 3600);
 }
 
+function wastedTaka(wattHours) {
+  if (wattHours <= 0) return 0;
+  return Number(((wattHours / 1000) * BDT_PER_KWH).toFixed(2));
+}
+
+// Cost of running `watts` continuously for `hours`, at the same tariff (BDT).
+function projectedCost(watts, hours) {
+  if (watts <= 0 || hours <= 0) return 0;
+  return Number((((watts * hours) / 1000) * BDT_PER_KWH).toFixed(2));
+}
+
 function recordWatts(watts) {
   wattsHistory.push(watts);
   if (wattsHistory.length > HISTORY_LIMIT) wattsHistory.shift();
@@ -56,6 +67,8 @@ module.exports = {
   getKwhToday,
   getCostToday,
   wastedWh,
+  wastedTaka,
+  projectedCost,
   recordWatts,
   getWattsHistory,
   resetKwh,

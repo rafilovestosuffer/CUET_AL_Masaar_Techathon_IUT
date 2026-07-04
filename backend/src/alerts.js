@@ -35,6 +35,7 @@ function fire(key, rule, room, message) {
     room,
     message,
     wastedWh: 0,
+    wastedTaka: 0,
     createdAt: sim.getSimTime(),
     active: true,
   };
@@ -60,7 +61,9 @@ function evaluate() {
       const key = `after-hours:${room}`;
       live.add(key);
       fire(key, "after-hours", room, `${LABELS[room]} has ${onCount} device${onCount > 1 ? "s" : ""} on after hours.`);
-      active.get(key).wastedWh = aggregate.wastedWh(byRoom[room], (simMs - closeMs(simMs)) / 1000);
+      const wh = aggregate.wastedWh(byRoom[room], (simMs - closeMs(simMs)) / 1000);
+      active.get(key).wastedWh = wh;
+      active.get(key).wastedTaka = aggregate.wastedTaka(wh);
     }
 
     const allOn = roomDevices.length > 0 && onCount === roomDevices.length;
@@ -70,7 +73,9 @@ function evaluate() {
         const key = `2h-continuous:${room}`;
         live.add(key);
         fire(key, "2h-continuous", room, `${LABELS[room]} has been fully on for over ${CONTINUOUS_HOURS} hours.`);
-        active.get(key).wastedWh = aggregate.wastedWh(byRoom[room], (simMs - fullOnSince[room]) / 1000);
+        const wh = aggregate.wastedWh(byRoom[room], (simMs - fullOnSince[room]) / 1000);
+        active.get(key).wastedWh = wh;
+        active.get(key).wastedTaka = aggregate.wastedTaka(wh);
       }
     } else {
       fullOnSince[room] = null;

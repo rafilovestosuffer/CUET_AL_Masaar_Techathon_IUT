@@ -3,8 +3,14 @@ const state = require("./state");
 const aggregate = require("./aggregate");
 const sim = require("./simulator");
 const alerts = require("./alerts");
+const insights = require("./insights");
 const scenarios = require("./scenarios");
 const { ROOMS } = require("./seed");
+
+function buildInsights() {
+  const { devices } = state.getSnapshot();
+  return insights.compute(devices, sim.getSimMs(), alerts.getAlerts().active);
+}
 
 function matchRoom(name) {
   const n = String(name).toLowerCase().replace(/[^a-z0-9]/g, "");
@@ -23,6 +29,7 @@ function buildDevicesResponse() {
     kwhToday: aggregate.getKwhToday(),
     costToday: aggregate.getCostToday(),
     wattsHistory: aggregate.getWattsHistory(),
+    insights: buildInsights(),
     simTime: sim.getSimTime(),
   };
 }
@@ -35,6 +42,7 @@ function buildUsage() {
     byRoom,
     kwhToday: aggregate.getKwhToday(),
     costToday: aggregate.getCostToday(),
+    insights: buildInsights(),
     simTime: sim.getSimTime(),
   };
 }
@@ -59,6 +67,8 @@ router.get("/rooms/:name", (req, res) => {
 
 router.get("/alerts", (_req, res) => res.json(alerts.getAlerts()));
 
+router.get("/insights", (_req, res) => res.json(buildInsights()));
+
 router.post("/sim/scenario/:name", (req, res) => {
   const { name } = req.params;
   if (!scenarios.applyScenario(name)) {
@@ -68,4 +78,4 @@ router.post("/sim/scenario/:name", (req, res) => {
   res.json({ ok: true, scenario: name });
 });
 
-module.exports = { router, buildDevicesResponse };
+module.exports = { router, buildDevicesResponse, matchRoom };

@@ -30,6 +30,19 @@ Rooms: `drawing`, `work1`, `work2`.
 `costToday` = `kwhToday` × ৳8.95/kWh (Bangladesh commercial tariff). `wattsHistory` is a
 rolling buffer of the last 60 total-watt samples (one per 5s tick) for the dashboard sparkline.
 
+`insights` is a backend-computed summary reused by the dashboard and bot (never recomputed downstream):
+
+```json
+{
+  "biggestRoom": { "room": "work2", "label": "Work Room 2", "watts": 182 },
+  "afterHoursOnCount": 6,
+  "costToday": 4.48,
+  "projectedDailyCost": 53.06,
+  "projectedMonthlyCost": 1591.8,
+  "wastedCostToday": 11.05
+}
+```
+
 ## REST endpoints
 
 ### GET /api/devices
@@ -41,6 +54,7 @@ Full device snapshot.
   "kwhToday": 4.2,
   "costToday": 37.59,
   "wattsHistory": [ 720, 740, 650 ],
+  "insights": { /* see insights object above */ },
   "simTime": "2026-07-03T14:22:05Z"
 }
 ```
@@ -56,7 +70,14 @@ Error: `404 { "error": "unknown room", "known": ["drawing", "work1", "work2"] }`
 ### GET /api/usage
 Power summary for bot + dashboard.
 ```json
-{ "watts": 740, "byRoom": { "drawing": 90, "work1": 0, "work2": 650 }, "kwhToday": 4.2, "costToday": 37.59, "simTime": "..." }
+{ "watts": 740, "byRoom": { "drawing": 90, "work1": 0, "work2": 650 }, "kwhToday": 4.2, "costToday": 37.59, "insights": { /* see above */ }, "simTime": "..." }
+```
+
+### GET /api/insights
+Boss-facing summary (biggest-draw room, after-hours device count, projected daily/monthly
+cost, and Taka wasted today). Same object embedded in `/api/devices` and `/api/usage`.
+```json
+{ "biggestRoom": { "room": "work2", "label": "Work Room 2", "watts": 182 }, "afterHoursOnCount": 6, "costToday": 4.48, "projectedDailyCost": 53.06, "projectedMonthlyCost": 1591.8, "wastedCostToday": 11.05 }
 ```
 
 ### GET /api/alerts
@@ -72,12 +93,14 @@ Active + recent alerts.
   "room": "work2",
   "message": "Work Room 2 has devices on after hours.",
   "wastedWh": 910,
+  "wastedTaka": 8.14,
   "createdAt": "2026-07-03T22:05:00Z",
   "active": true
 }
 ```
 - `rule`: `"after-hours"` | `"2h-continuous"`
 - `wastedWh`: backend estimate of energy wasted so far by the flagged room (watts × hours), updated live.
+- `wastedTaka`: `wastedWh` valued at the ৳8.95/kWh tariff, updated live.
 
 ### POST /api/sim/scenario/:name
 Deterministic demo triggers. `name` ∈ `forgot-devices` | `all-off` | `business-hours` | `reset`.

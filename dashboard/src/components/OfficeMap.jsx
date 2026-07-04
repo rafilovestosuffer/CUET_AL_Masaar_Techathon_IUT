@@ -195,9 +195,10 @@ function IsoRoom({ room, index, devices, alerted }) {
 
 export default function OfficeMap({ devices, alertRooms = [] }) {
   return (
-    <section className="rounded-xl border border-white/10 bg-white/5 p-4">
+    <section className="flex h-full flex-col rounded-xl border border-white/10 bg-white/5 p-4">
       <h2 className="mb-2 text-xs uppercase tracking-wide text-gray-400">Office floor</h2>
-      <svg viewBox="0 0 960 560" className="w-full" role="img" aria-label="Isometric office floor map">
+      <div className="flex flex-1 items-center">
+        <svg viewBox="0 0 960 560" className="w-full" role="img" aria-label="Isometric office floor map">
         <defs>
           <radialGradient id="iso-pool">
             <stop offset="0%" stopColor={AMBER} stopOpacity={0.35} />
@@ -224,7 +225,8 @@ export default function OfficeMap({ devices, alertRooms = [] }) {
             />
           ))}
         </g>
-      </svg>
+        </svg>
+      </div>
     </section>
   );
 }

@@ -35,7 +35,7 @@ read by the dashboard and bot, so the two can never disagree.
 | **AI humanizer** | Friendly, varied bot wording | Gemini rephrases **facts only**; number-integrity checked; template fallback |
 | **One-command Docker** | `docker compose up --build` runs the whole stack | Built & verified: Node 20 Alpine image, ports 3001 + 5173 |
 
-> Note: the problem statement's own device count is inconsistent (15 on page 1, 18 elsewhere).
+
 > We follow the fixed office setup — 3 rooms × 5 devices (2 fans + 3 lights) = **15 devices**.
 
 ### Alert rules (checked every 30 s)

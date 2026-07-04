@@ -105,6 +105,23 @@ The simulator (`backend/src/simulator.js`) models a realistic office day on its 
 Swapping the simulator for real hardware changes nothing downstream — the rest of the system
 consumes the same device JSON.
 
+### Recording the demo video
+
+Real-time speed can look too static in a short recording. For a livelier take, set the sim
+clock to just before the 08:45 ramp-up and speed it up, so devices visibly switch on as the
+schedule plays out:
+
+```bash
+SIM_HOUR=8 SIM_SPEED=20 npm run dev:all      # bash
+$env:SIM_HOUR=8; $env:SIM_SPEED=20; npm run dev:all   # PowerShell
+```
+
+Then, once the dashboard is up: `npm run demo:warmup` gives an instant lively mix of devices
+across all rooms (good opening shot), and `npm run demo:alert` triggers the forgot-devices
+alert on camera. Since flips are probabilistic, do a couple of dry runs before recording for
+real. Revert to plain `npm run dev:all` afterward — judges cloning the repo should see
+realistic real-time behavior, not the sped-up recording settings.
+
 ## Hardware / Wokwi
 
 _Pending — ESP32 circuit (Wokwi) and pin-mapping table delivered by the hardware track; the

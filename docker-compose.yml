@@ -1,0 +1,10 @@
+services:
+  officepulse:
+    build: .
+    ports:
+      - "3001:3001"
+      - "5173:5173"
+    # The dashboard and backend need no keys. To enable the Discord bot,
+    # copy .env.example to .env, fill in the tokens, and uncomment:
+    # env_file:
+    #   - .env

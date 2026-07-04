@@ -4,7 +4,7 @@ Real-time monitoring for a small office's lights and fans. One backend simulates
 devices (3 rooms × 2 fans + 3 lights), and pushes live state to a web dashboard and a
 Discord bot — so both always show the same numbers.
 
-![OfficePulse dashboard — office floor map, live power meter with cost, power-over-time chart, and alerts](docs/dashboard.png)
+![OfficePulse dashboard — office floor map, live power meter with cost, power-over-time chart, and alerts](docs/dashboard1.png)
 
 ## Problem
 

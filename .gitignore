@@ -19,12 +19,5 @@ npm-debug.log*
 .DS_Store
 .vscode/
 .idea/
-.claude/
 
-# internal planning notes (not part of the product)
-PRD.md
-TASKS.md
-ARCHITECTURE.md
-CLAUDE.md
-plan.md
-plot.md
+

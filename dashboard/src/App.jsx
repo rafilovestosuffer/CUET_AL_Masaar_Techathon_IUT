@@ -23,6 +23,28 @@ function ConnectionPill({ connected }) {
   );
 }
 
+const OPEN_HOUR = 9;
+const CLOSE_HOUR = 17;
+
+function SimClock({ simTime }) {
+  if (!simTime) return null;
+  const d = new Date(simTime);
+  const hour = d.getHours();
+  const officeHours = hour >= OPEN_HOUR && hour < CLOSE_HOUR;
+  return (
+    <span className="flex items-center gap-2 text-sm text-gray-400">
+      {d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+      <span
+        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+          officeHours ? "bg-emerald-400/10 text-emerald-400" : "bg-amber-400/10 text-amber-400"
+        }`}
+      >
+        {officeHours ? "Office hours" : "After hours"}
+      </span>
+    </span>
+  );
+}
+
 function LoadingScreen() {
   return (
     <div className="mx-auto max-w-6xl space-y-4 p-4 sm:p-6">
@@ -41,13 +63,16 @@ export default function App() {
 
   if (!snapshot) return <LoadingScreen />;
 
-  const { devices, totals, kwhToday, costToday, wattsHistory, insights } = snapshot;
+  const { devices, totals, kwhToday, costToday, wattsHistory, insights, simTime } = snapshot;
 
   return (
     <div className="min-h-screen p-4 sm:p-6">
       <header className="mx-auto mb-4 flex max-w-6xl items-center justify-between">
         <h1 className="text-2xl font-bold text-amber-400">OfficePulse</h1>
-        <ConnectionPill connected={connected} />
+        <div className="flex items-center gap-4">
+          <SimClock simTime={simTime} />
+          <ConnectionPill connected={connected} />
+        </div>
       </header>
 
       {!connected && (

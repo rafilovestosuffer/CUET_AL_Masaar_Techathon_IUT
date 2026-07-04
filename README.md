@@ -107,6 +107,10 @@ The simulator (`backend/src/simulator.js`) models a realistic office day on its 
 - **Deterministic demo scenarios** (`POST /api/sim/scenario/:name`):
   `forgot-devices` (Work Room 2 left fully on, clock jumped to 22:00 → fires alerts),
   `all-off`, `business-hours`, and `reset`. Run `npm run demo:alert` to trigger one on camera.
+- **Full alert lifecycle on demand.** Alerts auto-resolve once their condition clears — trigger
+  `forgot-devices` (or `!demo forgot-devices` from Discord), then `business-hours` (or `reset`),
+  and within one 30 s alert-check tick the same alerts flip from active to resolved. Showing
+  both halves on camera — fire, then clear — is a stronger demo than firing alone.
 
 Swapping the simulator for real hardware changes nothing downstream — the rest of the system
 consumes the same device JSON.
@@ -226,12 +230,13 @@ Result: the AI makes the bot pleasant to read, but accuracy never depends on it.
 
 ## Contributions
 
+**Team CUET_AL_Masaar**
+
 | Area | Owner |
 |---|---|
-| Backend, dashboard, Discord bot, AI layer, Docker | Software track |
-| ESP32 circuit, system diagram, hardware docs | Hardware track |
-
-_Fill in each teammate's name against their track before submission._
+| Backend, dashboard, UI/UX, Discord bot, AI/LLM layer, Docker, documentation | Rafi |
+| ESP32 circuit, IoT | Nahid, Shorov |
+| Documentation, IoT | Shahed
 
 ## Attribution
 

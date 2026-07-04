@@ -38,6 +38,18 @@ async function handleCommand(content) {
         if (status === 404) return t.unknownRoomReply();
         return humanize("room", t.roomFacts(data), t.roomReply(data));
       }
+      case "alerts": {
+        const data = await api.getAlerts();
+        return humanize("alerts", t.alertsListFacts(data), t.alertsListReply(data));
+      }
+      case "cost": {
+        const data = await api.getUsage();
+        return humanize("cost", t.costFacts(data), t.costReply(data));
+      }
+      case "waste": {
+        const data = await api.getInsights();
+        return humanize("waste", t.wasteFacts(data), t.wasteReply(data));
+      }
       case "ask": {
         if (!ASK_ENABLED) return null;
         if (!arg) return "Ask me a question, e.g. `!ask which room is wasting the most?`";

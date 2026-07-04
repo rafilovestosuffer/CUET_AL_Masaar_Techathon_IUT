@@ -34,4 +34,10 @@ async function getAlerts() {
   return data;
 }
 
-module.exports = { getUsage, getDevices, getRoom, getAlerts };
+async function getInsights() {
+  const { status, data } = await fetchRaw("/api/insights");
+  if (status >= 400) throw new Error(`insights HTTP ${status}`);
+  return data;
+}
+
+module.exports = { getUsage, getDevices, getRoom, getAlerts, getInsights };

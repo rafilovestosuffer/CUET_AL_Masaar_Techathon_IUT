@@ -66,6 +66,51 @@ function alertFacts(alert) {
   };
 }
 
+function alertsListReply(data) {
+  const active = data.active || [];
+  if (active.length === 0) return "✅ All clear — nothing left on that shouldn't be.";
+  const lines = active.map((a) => {
+    const time = new Date(a.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    return `⚠️ [${time}] ${a.message} (৳${a.wastedTaka} wasted)`;
+  });
+  return `🚨 ${active.length} active alert${active.length > 1 ? "s" : ""}:\n${lines.join("\n")}`;
+}
+
+function alertsListFacts(data) {
+  const active = data.active || [];
+  return {
+    count: active.length,
+    alerts: active.map((a) => ({ room: LABELS[a.room] || a.room, message: a.message, wastedTaka: a.wastedTaka })),
+  };
+}
+
+function costReply(data) {
+  const projected = data.insights?.projectedMonthlyCost;
+  const projectedLine = projected != null ? ` At this rate, about ৳${projected} this month.` : "";
+  return `💰 Today's bill so far: ৳${data.costToday} (~${data.kwhToday} kWh).${projectedLine}`;
+}
+
+function costFacts(data) {
+  return {
+    kwhToday: data.kwhToday,
+    costToday: data.costToday,
+    projectedMonthlyCost: data.insights?.projectedMonthlyCost ?? null,
+  };
+}
+
+function wasteReply(data) {
+  const room = data.biggestRoom ? `${LABELS[data.biggestRoom.room] || data.biggestRoom.room} (${data.biggestRoom.watts} W)` : "none";
+  return `🔍 Biggest draw right now: ${room}. Wasted today: ৳${data.wastedCostToday}.`;
+}
+
+function wasteFacts(data) {
+  return {
+    biggestRoom: data.biggestRoom ? LABELS[data.biggestRoom.room] || data.biggestRoom.room : null,
+    biggestRoomWatts: data.biggestRoom?.watts ?? null,
+    wastedCostToday: data.wastedCostToday,
+  };
+}
+
 function backendDownReply() {
   return "I can't reach the office sensors right now — try again in a minute.";
 }
@@ -80,6 +125,9 @@ function helpReply() {
     "`!status` — every room at a glance",
     "`!room <name>` — one room (e.g. `!room work2`)",
     "`!usage` — power, energy & cost today",
+    "`!alerts` — active anomalies right now",
+    "`!cost` — today's bill & monthly projection",
+    "`!waste` — biggest draw & wasted cost today",
     "`!ask <question>` — ask me anything, e.g. `!ask which room wastes the most?`",
   ].join("\n");
 }
@@ -89,10 +137,16 @@ module.exports = {
   roomReply,
   usageReply,
   alertReply,
+  alertsListReply,
+  costReply,
+  wasteReply,
   statusFacts,
   usageFacts,
   roomFacts,
   alertFacts,
+  alertsListFacts,
+  costFacts,
+  wasteFacts,
   backendDownReply,
   unknownRoomReply,
   helpReply,
